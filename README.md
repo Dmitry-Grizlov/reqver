@@ -6,34 +6,36 @@ Reqver is a test-covered, lightweight and easy to use library for parsing, print
 
 ### Get library with `go get` command
 
->`go get "github.com/Dmitry-Grizlov/reqver"`
+```
+go get "github.com/Dmitry-Grizlov/reqver"
+```
 
 ### Import it in your code
 
 ```
-    import "github.com/Dmitry-Grizlov/reqver"
+import "github.com/Dmitry-Grizlov/reqver"
 ```
 
 ### Parse current go version
 
 ```
-    currentVersion, err := reqver.ParseVersion()
+currentVersion, err := reqver.ParseVersion()
 ```
 
 ### Create go version object with version you want to compare with
 
 ```
-    desiredVersion := Version{
-        Major: 1,
-        Minor: 2,
-        Patch: 3,
-    }
+desiredVersion := Version{
+    Major: 1,
+    Minor: 2,
+    Patch: 3,
+}
 ```
 
 ### You can use these objects for comparison then
 
 ```
-    if desiredVersion.IsSmaller(currentVersion) {
-        fmt.Errorf("Please upgrade your go version.")
-    }
+if desiredVersion.IsSmaller(currentVersion) {
+    fmt.Errorf("Please upgrade your go version.")
+}
 ```
