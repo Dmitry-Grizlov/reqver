@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-var currentVersion = Version{
+var currentVersion = &Version{
 	Major: 1,
 	Minor: 20,
 	Patch: 3,
@@ -22,6 +22,23 @@ func TestVersion_ParseVersion(t *testing.T) {
 	asserter.Equal(currentVersion.Patch, result.Patch)
 }
 
+func TestVersion_ParseVersionFromString(t *testing.T) {
+	asserter := assert.New(t)
+	t.Run("Invalid string", func(t *testing.T) {
+		result, err := ParseVersionFromString("Hello world")
+		asserter.Error(err)
+		asserter.Nil(result)
+	})
+	t.Run("Success", func(t *testing.T) {
+		result, err := ParseVersion()
+
+		asserter.NoError(err)
+		asserter.Equal(currentVersion.Major, result.Major)
+		asserter.Equal(currentVersion.Minor, result.Minor)
+		asserter.Equal(currentVersion.Patch, result.Patch)
+	})
+}
+
 func TestVersion_String(t *testing.T) {
 	asserter := assert.New(t)
 
@@ -30,31 +47,6 @@ func TestVersion_String(t *testing.T) {
 
 	asserter.Equal(expectedStr, actualStr)
 }
-
-// region Getters
-
-func TestVersion_GetMajor(t *testing.T) {
-	asserter := assert.New(t)
-	major := currentVersion.GetMajor()
-
-	asserter.Equal(1, major)
-}
-
-func TestVersion_GetMinor(t *testing.T) {
-	asserter := assert.New(t)
-	minor := currentVersion.GetMinor()
-
-	asserter.Equal(20, minor)
-}
-
-func TestVersion_GetPatch(t *testing.T) {
-	asserter := assert.New(t)
-	patch := currentVersion.GetPatch()
-
-	asserter.Equal(3, patch)
-}
-
-// endregion Getters
 
 // region Comparisons
 
@@ -86,7 +78,7 @@ func TestVersion_IsHigherOrEqual(t *testing.T) {
 	})
 	t.Run("minor smaller", func(t *testing.T) {
 		versionToCheck := Version{
-			Major: currentVersion.GetMajor(),
+			Major: currentVersion.Major,
 			Minor: -1,
 			Patch: 2,
 		}
@@ -95,7 +87,7 @@ func TestVersion_IsHigherOrEqual(t *testing.T) {
 	})
 	t.Run("minor bigger", func(t *testing.T) {
 		versionToCheck := Version{
-			Major: currentVersion.GetMajor(),
+			Major: currentVersion.Major,
 			Minor: 1000,
 			Patch: 2,
 		}
@@ -104,8 +96,8 @@ func TestVersion_IsHigherOrEqual(t *testing.T) {
 	})
 	t.Run("patch smaller", func(t *testing.T) {
 		versionToCheck := Version{
-			Major: currentVersion.GetMajor(),
-			Minor: currentVersion.GetMinor(),
+			Major: currentVersion.Major,
+			Minor: currentVersion.Minor,
 			Patch: -1,
 		}
 
@@ -113,8 +105,8 @@ func TestVersion_IsHigherOrEqual(t *testing.T) {
 	})
 	t.Run("patch bigger", func(t *testing.T) {
 		versionToCheck := Version{
-			Major: currentVersion.GetMajor(),
-			Minor: currentVersion.GetMinor(),
+			Major: currentVersion.Major,
+			Minor: currentVersion.Minor,
 			Patch: 1000,
 		}
 
@@ -122,9 +114,9 @@ func TestVersion_IsHigherOrEqual(t *testing.T) {
 	})
 	t.Run("equal", func(t *testing.T) {
 		versionToCheck := Version{
-			Major: currentVersion.GetMajor(),
-			Minor: currentVersion.GetMinor(),
-			Patch: currentVersion.GetPatch(),
+			Major: currentVersion.Major,
+			Minor: currentVersion.Minor,
+			Patch: currentVersion.Patch,
 		}
 
 		asserter.True(versionToCheck.IsHigherOrEqual(currentVersion))
@@ -154,7 +146,7 @@ func TestVersion_IsHigher(t *testing.T) {
 	})
 	t.Run("minor smaller", func(t *testing.T) {
 		versionToCheck := Version{
-			Major: currentVersion.GetMajor(),
+			Major: currentVersion.Major,
 			Minor: -1,
 			Patch: 2,
 		}
@@ -163,7 +155,7 @@ func TestVersion_IsHigher(t *testing.T) {
 	})
 	t.Run("minor bigger", func(t *testing.T) {
 		versionToCheck := Version{
-			Major: currentVersion.GetMajor(),
+			Major: currentVersion.Major,
 			Minor: 1000,
 			Patch: 2,
 		}
@@ -172,8 +164,8 @@ func TestVersion_IsHigher(t *testing.T) {
 	})
 	t.Run("patch smaller", func(t *testing.T) {
 		versionToCheck := Version{
-			Major: currentVersion.GetMajor(),
-			Minor: currentVersion.GetMinor(),
+			Major: currentVersion.Major,
+			Minor: currentVersion.Minor,
 			Patch: -1,
 		}
 
@@ -181,8 +173,8 @@ func TestVersion_IsHigher(t *testing.T) {
 	})
 	t.Run("patch bigger", func(t *testing.T) {
 		versionToCheck := Version{
-			Major: currentVersion.GetMajor(),
-			Minor: currentVersion.GetMinor(),
+			Major: currentVersion.Major,
+			Minor: currentVersion.Minor,
 			Patch: 1000,
 		}
 
@@ -190,9 +182,9 @@ func TestVersion_IsHigher(t *testing.T) {
 	})
 	t.Run("equal", func(t *testing.T) {
 		versionToCheck := Version{
-			Major: currentVersion.GetMajor(),
-			Minor: currentVersion.GetMinor(),
-			Patch: currentVersion.GetPatch(),
+			Major: currentVersion.Major,
+			Minor: currentVersion.Minor,
+			Patch: currentVersion.Patch,
 		}
 
 		asserter.False(versionToCheck.IsHigher(currentVersion))
@@ -222,7 +214,7 @@ func TestVersion_IsSmallerOrEqual(t *testing.T) {
 
 	t.Run("major smaller", func(t *testing.T) {
 		versionToCheck := Version{
-			Major: -1,
+			Major: 0,
 			Minor: 1,
 			Patch: 2,
 		}
@@ -240,8 +232,8 @@ func TestVersion_IsSmallerOrEqual(t *testing.T) {
 	})
 	t.Run("minor smaller", func(t *testing.T) {
 		versionToCheck := Version{
-			Major: currentVersion.GetMajor(),
-			Minor: -1,
+			Major: currentVersion.Major,
+			Minor: 0,
 			Patch: 2,
 		}
 
@@ -249,7 +241,7 @@ func TestVersion_IsSmallerOrEqual(t *testing.T) {
 	})
 	t.Run("minor bigger", func(t *testing.T) {
 		versionToCheck := Version{
-			Major: currentVersion.GetMajor(),
+			Major: currentVersion.Major,
 			Minor: 1000,
 			Patch: 2,
 		}
@@ -258,17 +250,17 @@ func TestVersion_IsSmallerOrEqual(t *testing.T) {
 	})
 	t.Run("patch smaller", func(t *testing.T) {
 		versionToCheck := Version{
-			Major: currentVersion.GetMajor(),
-			Minor: currentVersion.GetMinor(),
-			Patch: -1,
+			Major: currentVersion.Major,
+			Minor: currentVersion.Minor,
+			Patch: 0,
 		}
 
 		asserter.True(versionToCheck.IsSmallerOrEqual(currentVersion))
 	})
 	t.Run("patch bigger", func(t *testing.T) {
 		versionToCheck := Version{
-			Major: currentVersion.GetMajor(),
-			Minor: currentVersion.GetMinor(),
+			Major: currentVersion.Major,
+			Minor: currentVersion.Minor,
 			Patch: 1000,
 		}
 
@@ -276,9 +268,9 @@ func TestVersion_IsSmallerOrEqual(t *testing.T) {
 	})
 	t.Run("equal", func(t *testing.T) {
 		versionToCheck := Version{
-			Major: currentVersion.GetMajor(),
-			Minor: currentVersion.GetMinor(),
-			Patch: currentVersion.GetPatch(),
+			Major: currentVersion.Major,
+			Minor: currentVersion.Minor,
+			Patch: currentVersion.Patch,
 		}
 
 		asserter.True(versionToCheck.IsSmallerOrEqual(currentVersion))
@@ -290,7 +282,7 @@ func TestVersion_IsSmaller(t *testing.T) {
 
 	t.Run("major smaller", func(t *testing.T) {
 		versionToCheck := Version{
-			Major: -1,
+			Major: 0,
 			Minor: 1,
 			Patch: 2,
 		}
@@ -308,8 +300,8 @@ func TestVersion_IsSmaller(t *testing.T) {
 	})
 	t.Run("minor smaller", func(t *testing.T) {
 		versionToCheck := Version{
-			Major: currentVersion.GetMajor(),
-			Minor: -1,
+			Major: currentVersion.Major,
+			Minor: 0,
 			Patch: 2,
 		}
 
@@ -317,7 +309,7 @@ func TestVersion_IsSmaller(t *testing.T) {
 	})
 	t.Run("minor bigger", func(t *testing.T) {
 		versionToCheck := Version{
-			Major: currentVersion.GetMajor(),
+			Major: currentVersion.Major,
 			Minor: 1000,
 			Patch: 2,
 		}
@@ -326,17 +318,17 @@ func TestVersion_IsSmaller(t *testing.T) {
 	})
 	t.Run("patch smaller", func(t *testing.T) {
 		versionToCheck := Version{
-			Major: currentVersion.GetMajor(),
-			Minor: currentVersion.GetMinor(),
-			Patch: -1,
+			Major: currentVersion.Major,
+			Minor: currentVersion.Minor,
+			Patch: 0,
 		}
 
 		asserter.True(versionToCheck.IsSmaller(currentVersion))
 	})
 	t.Run("patch bigger", func(t *testing.T) {
 		versionToCheck := Version{
-			Major: currentVersion.GetMajor(),
-			Minor: currentVersion.GetMinor(),
+			Major: currentVersion.Major,
+			Minor: currentVersion.Minor,
 			Patch: 1000,
 		}
 
@@ -344,9 +336,9 @@ func TestVersion_IsSmaller(t *testing.T) {
 	})
 	t.Run("equal", func(t *testing.T) {
 		versionToCheck := Version{
-			Major: currentVersion.GetMajor(),
-			Minor: currentVersion.GetMinor(),
-			Patch: currentVersion.GetPatch(),
+			Major: currentVersion.Major,
+			Minor: currentVersion.Minor,
+			Patch: currentVersion.Patch,
 		}
 
 		asserter.False(versionToCheck.IsSmaller(currentVersion))
